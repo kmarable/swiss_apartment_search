@@ -1,0 +1,11 @@
+https://stackoverflow.com/questions/40539070/shutil-copyfile-does-not-copy-all-lines
+Most file I/O is buffered. That means when you write information to the file, some of it doesn't hit the disk immediately; it stays in buffers within the program until enough has been collected to be worth writing out.
+
+ok. so my current issue is about being able to find the location of the current file.  You can do this with  os.path.dirname(os.path.realpath(__file__))
+
+For regex in file paths, need r in front and double slash to handle them correctly. e.g. r'c:\\place'
+
+Dealing with slashes in directory trees:
+but, here's https://stackoverflow.com/questions/29283466/how-to-process-files-from-one-subfolder-to-another-in-each-directory-using-pytho.  Apparently now there is a new library, Pathlib, that is simpler than os.path. https://medium.com/@ageitgey/python-3-quick-tip-the-easy-way-to-deal-with-file-paths-on-windows-mac-and-linux-11a072b58d5f But, here's a more comprehensive tutorial
+
+OK... looks like now I have a concurrency issue. Oh, no, not quite that bad.  It's just the problem with testing.. file names are unique as long as they are written more than a second apart.  Do I want to go ahead and add logic to make a unique filename?

@@ -1,0 +1,20 @@
+Relative import does not work when a script is called from a command line.  You need to add something to add the path to the command line.
+
+for testing, the easiest way to proceed is to use the unittest command line interface that will take care of adding it for you.  See:
+https://stackoverflow.com/questions/1896918/running-unittest-with-typical-test-directory-structure
+
+I guess somewhere when we set up the datafile i should make sure that the path is modified?
+
+UNITTEST SETUP RUNS AGAIN BEFORE EACH TEST
+For things you want to run once before running all the tests, use setUpClass and tearDownClass.
+Wow, I did not understand how that works..
+https://stackoverflow.com/questions/8389639/unittest-setup-teardown-for-several-tests/8391043
+
+also possible to write subtests, that might be a good way to implement my parser testing code
+
+Can also use skipTest() to avoid tests...
+
+Class and static methods, was looking it up for teardownclass. but,
+STATIC METHOD seems to be the right way to add little helper functions i.e. isAdult as part of a Person class.They cannot access/modify class state
+CLASS METHODS can access or modify class state.  typically used for FACTORIES
+https://www.geeksforgeeks.org/class-method-vs-static-method-python/

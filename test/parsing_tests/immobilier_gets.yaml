@@ -1,0 +1,71 @@
+#getFloor
+test_getFloor2eme_to_9eme: {
+  input_text: '<div class="im__assets__table">  <div> 3ème étage</div></div>',
+  expected: 3,
+  bad_expected: -1,
+  method_to_test: 'getFloor',
+  error_message: 'Does not get 3 from 3ème étage'
+  }
+test_getFloor1er: {
+  input_text: '<div class="im__assets__table"> <div> 1er étage</div></div>',
+  expected: 1,
+  bad_expected: -1,
+  method_to_test: 'getFloor',
+  error_message: 'not correctly parsing 1er étage'
+  }
+test_getFloorRDC: {
+  input_text: "<div class=\"im__assets__table\"> <div>Rez-de-chaussée </div></div>",
+  expected: 0,
+  bad_expected: -1,
+  method_to_test: 'getFloor',
+  error_message: 'not correctly parsing RDC'
+  }
+#getConstructionYear
+test_getConstructionYearwhenExists: {
+  input_text: '<div class="im__assets__table">  <div> Construit en 2017</div> </div>',
+  expected: 2017,
+  bad_expected: -1,
+  method_to_test: 'getConstructionYear',
+  error_message: 'Does not get 2017 from Construit en 2017'
+  }
+test_getLoyerNet: {
+  input_text: "<div class=\"im__assets__table\"> <span> Loyer : CHF 1'555.-/mois </span></div>",
+  expected: 1555,
+  bad_expected: -1,
+  method_to_test: 'getLoyerNet',
+  error_message: "Does not get Loyer from Loyer : CHF 1'555"
+  }
+test_getCharges: {
+  input_text: '<div class="im__assets__table">  <div> Charges : CHF 155.-	</div></div>',
+  expected: 155,
+  bad_expected: -1,
+  method_to_test: 'getCharges',
+  error_message: 'Does not get Charges from Charges : CHF  155'
+  }
+test_getListingSpace: {
+   input_text: '<div class="im__assets__table"> <div> 72 m<sup>2</sup> (habitables)		</div> </div>',
+   expected: 72,
+   bad_expected: -1,
+   method_to_test: 'getListingSpace',
+   error_message: 'Does not get 72 from 72 m<sup>2</sup> (habitables)'
+   }
+test_getLatLong: {
+    input_text: '<div class="im__assets__table">
+		<ul class="im__table im__table--responsive im__row">
+			<a class="map-link map-link-android" href="https://www.google.com/maps/search/?api=1&query=46.5248730,6.5991110" target="_blank"><img src="/Images/maps-icon-google.png" alt="Positionnement sur la carte" /></a></ul></div?>',
+    expected: !!python/tuple [46.5248730, 6.5991110],
+    bad_expected: !!python/tuple [-1.0,-1.0],
+    method_to_test: 'getLatLong',
+    error_message: 'Does not get latitude from filter item'
+    }
+test_getDescription: {
+    input_text: "<div class='im__postContent__body'>
+				<h2>Proche de toutes les commodités - Quartier tranquille</h2>
+				<p>Joli appartement de 3.5 pièces au 2ème étage d'une surface totale de 72m2 comprenant :<BR><BR>- deux chambres à coucher<BR>
+                </p></div>",
+    expected: "<p>Joli appartement de 3.5 pièces au 2ème étage d'une surface totale de 72m2 comprenant :<br><br>- deux chambres à coucher<br>
+    </p>",
+    bad_expected: "",
+    method_to_test: 'getDescription',
+    error_message: 'Do not get description from im__postContent__body'
+    }

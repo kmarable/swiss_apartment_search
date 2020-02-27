@@ -1,0 +1,19 @@
+DONE
+* Made a file class that can update the same raw data file and backfill nas when new features are added, while backing up the old files.  I feel like I have a better understanding of why ppl use databases.
+*Wrote some parsing functions
+* 95% of parser
+* Spider -- Need to write master spider and an inheriting Immobilier spider.  Need to figure out how to select start page.  Need to do a basic parse to getP links and id for all listings, then figure out which listings I do not yet have.  Call Parser on each of them to fill a dataframe with extracted features and save it to a DataFile.
+
+TO DO
+Make sure get_old_ids references correct file... make config file?  Use datafile class?
+Add file header instead of parsing file name, add link, make class.
+write main script
+Parser-- fix getAvailability
+ReportWriter -- This should be simple, make a yaml file of parameters and parse it to a dataframe filter. Read in the last processed file as data frame and run your filter on it.  Print links column of resulting dataframe to a dated text file.  Maybe reuse some of my file naming/dating code?  Anyway, this part I am pretty confident I can do.
+write mapping class --https://stackoverflow.com/questions/19412462/getting-distance-between-two-points-based-on-latitude-longitude
+
+
+
+https://www.immobilier.ch/fr/carte/louer/appartement-maison/page-1?t=rent&c=1;2&p=c11115;c12292;c12211;c10033&nb=false
+
+FindDuplicates -- Need to figure out how to identify when listings on different sites are the same
