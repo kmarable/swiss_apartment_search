@@ -20,8 +20,6 @@ class ListingParser():
         headerData = self.parseAllHeaders(htmlFiles)
         responses = [f.getResponse() for f in htmlFiles]
         fileData = self.parseAllFiles(responses)
-        headerData.to_csv('headerData.csv')
-        fileData.to_csv('fileData.csv')
         new_data = headerData.join(fileData)
         self.write_file(new_data)
 
@@ -50,9 +48,6 @@ class ListingParser():
     def write_file(self, new_data):
         df_file = DataFile()
         df_file.updateFile(new_data)
-
-    def getHost(self):
-        pass
 
     def getAvailability(self, r):
         pass

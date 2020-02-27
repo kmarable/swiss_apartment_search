@@ -3,30 +3,42 @@ import re
 import string
 import pandas as pd
 import numpy as np
-from src.utilities import make_case_insensitive
+from src.utilities import make_case_insensitive, extract_french_number
 import config
+import html
+from datetime import datetime
 
 class ImmoscoutParser(ListingParser):
+    listings_folder = 'data\\immoscout_pages'
 
-    def getListingAssets(self, response):
-        assets = response.css('div.im__assets__table').get()
-        if assets is None:
-            return ''
-        else:
-            return assets
+    def getLoyerBrut(self, response):
+        assets = html.unescape(response.text)
+        loyer_line = re.findall('Loyer brut \(mois\)</td><td class=[^>]*>CHF ([^<]*).—</td>', assets)
+        return extract_french_number(loyer_line)
+
+    def getLoyerNet(self, response):
+        assets = html.unescape(response.text)
+        loyer_line = re.findall('Loyer net \(mois\)</td><td class=[^>]*>CHF ([^<]*).—</td>', assets)
+        return extract_french_number(loyer_line)
+
+    def getCharges(self, response):
+        assets = html.unescape(response.text)
+        loyer_line = re.findall('Charges \(mois\)</td><td class=[^>]*>CHF ([^<]*).—</td>', assets)
+        return extract_french_number(loyer_line)
 
     def getAvailability(self, response):
-        assets = self.getListingAssets(response)
+        assets = html.unescape(response.text)
         # To do : convert to datetime
-        availabilities = re.findall(r'Disponible dès\s*(.*\S)[\s\t]*', assets)
+        availabilities = re.findall( 'Disponibilité</td><td class=[^>]+>([0-9]{2}.[0-9]{2}.[0-9]{4})</td>', assets)
         if len(availabilities) > 0:
-            return availabilities[0]
+            available_date = datetime.strptime( availabilities[0], '%d.%m.%Y')
+            return available_date
         else:
             return 'No info'
 
     def getConstructionYear(self, response):
-        assets = self.getListingAssets(response)
-        c_pattern = r'onstruit en\s*([0-9]*)[\s\t]*'
+        assets = html.unescape(response.text)
+        c_pattern = 'Année de construction</td><td class=[^>]+> ([0-9]+)'
         years = re.findall(c_pattern, assets)
         if len(years) > 0:
             return (min([int(y) for y in years]))
@@ -34,29 +46,17 @@ class ImmoscoutParser(ListingParser):
             return -1
 
     def getFloor(self, response):
-        assets = self.getListingAssets(response)
-        if re.search(r'Rez-de-chaussée', assets):
-            return 0
-        floors = re.findall(r'([2-9])ème étage', assets)
-        floors.extend(re.findall(r'(1)er étage', assets))
+        assets = html.unescape(response.text)
+        floors = re.findall('Étage</td><td class=[^>]*>([0-9]+). étage</td>', assets)
+        print(floors)
         if len(floors):
             return int(floors[0])
         else:
             return -1
 
-    def getLoyerNet(self, response):
-        assets = self.getListingAssets(response)
-        loyer_line = re.findall('Loyer : CHF [0-9\']*.-/mois', assets)
-        return extract_french_number(loyer_line)
-
-    def getCharges(self, response):
-        assets = self.getListingAssets(response)
-        charges_line = re.findall('Charges : CHF [0-9\']*', assets)
-        return extract_french_number(charges_line)
-
     def getListingSpace(self, response):
-        assets = self.getListingAssets(response)
-        space = re.findall(r'([0-9]+)\sm<sup', assets)
+        assets = html.unescape(response.text)
+        space = re.findall('Surface habitable</td><td class=[^>]*>([0-9]+) m²</td>', assets)
 
         if len(space) > 0:
             return int(space[0])
@@ -75,35 +75,27 @@ class ImmoscoutParser(ListingParser):
             address_dict['City'] = zip_city[0][1]
 
     def getAddress(self, response):
-        assets = self.getListingAssets(response)
-        address_pat = 'big\">\s*([\w\s-]+)(<br>)*([\w\s-]+)<br>\s*<a'
+        assets = html.unescape(response.text)
+        address_pat = '>Emplacement</h2><p class=[^>]*>([a-zA-Z 0-9]+)<br/>([0-9]{4})<!-- --> <!-- -->([a-zA-Z]+) VD<!-- -->, VD</p>'
+        #'>Emplacement</h2><p class=[^>]*>([.]+)<br/>([0-9]{4})<!-- --> <!-- -->([a-zA-Z]) VD<!-- -->, VD</p>'
         #'big\">\s*([\w\s]*)(<br>)*([\w\s-]*)<br>\s<a'
         rough_address = re.findall(address_pat, assets)
+        print ('ROUGH', rough_address)
 
         address_dict = {}
 
         if len(rough_address) == 0:
             print('NO ADDRESS FOUND')
             address_dict = dict(zip(['Street', 'Zip', 'City'],
-                                    ['', '', -1, '']))
-            return address_dict
-
-        address = rough_address[0]
-
-        if len(address) > 1:
-            address_dict['Street'] = address[0]
-            self.addZipAndCitytoDict(address_dict, address[2])
+                                    ['',  -1, '']))
         else:
-            self.addZipAndCitytoDict(address_dict, address[0])
-            if address_dict['Zip'] == -1:
-                address_dict['Street'] = address[0]
-            else:
-                address_dict['Street'] = ''
+            address_dict['Street'] = address_dict = dict(zip(['Street', 'Zip', 'City'],
+                                    [rough_address[0][0], rough_address[0][1],rough_address[0][2]]))
         return(address_dict)
 
     def getLatLong(self, response):
-        assets = self.getListingAssets(response)
-        latlong = re.findall(r'query=([0-9.]+),([0-9.]+)"', assets)
+        assets = html.unescape(response.text)
+        latlong = re.findall('\"latitude\":([0-9.]+),\"longitude\":([0-9.]+)', assets)
         if len(latlong) == 0:
             return {'Latitude': -1, 'Longitude': -1}
         else:
@@ -111,14 +103,16 @@ class ImmoscoutParser(ListingParser):
                     'Longitude': float(latlong[0][1])}
 
     def getDescription(self, response):
-        postContent = response.css('div.im__postContent__body p').get()
-        if postContent is None:
+        assets = html.unescape(response.text)
+        postContent = re.findall('Description</h2><div class=[^>]*>([^>]*)</div>', assets )
+        if postContent is []:
             return ''
         else:
-            return(postContent)
+            return(postContent[0])
 
     def getRooms(self, response):
         test = self.getDescription(response)
+        print('desc', test)
         quantity_dict = {'': 1,  'un': 1, 'une': 1, 'deux': 2}
 
         def quantity_to_int(q):
@@ -145,14 +139,3 @@ class ImmoscoutParser(ListingParser):
             rooms_in_ad[col] = sum(numbers_mentioned)
 
         return(rooms_in_ad)
-
-    def getHost(self):
-        return 'Immobilier'
-
-
-def extract_french_number(num_string_list):
-    if len(num_string_list) == 0:
-        return -1
-    defrenched = ''.join([p.replace('\'', '') for p in num_string_list[0]])
-    price = re.findall('[0-9]+', defrenched)[0]
-    return int(price)

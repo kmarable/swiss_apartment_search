@@ -2,6 +2,15 @@ from scrapy.http import TextResponse, Request
 from googlemaps.geocoding import geocode
 import pandas as pd
 import yaml
+import re
+
+
+def extract_french_number(num_string_list):
+    if len(num_string_list) == 0:
+        return -1
+    defrenched = ''.join([p.replace('\'', '') for p in num_string_list[0]])
+    price = re.findall('[0-9]+', defrenched)[0]
+    return int(price)
 
 
 def load_raw_data(arg):
@@ -21,7 +30,7 @@ def response_from_file(file_name, url=None):
     returns: A scrapy HTTP response which can be used for unittesting.
     """
 
-    file = open(file_name, 'r')
+    file = open(file_name, 'r', encoding='utf-8')
     file_content = file.read()
     file.close()
 

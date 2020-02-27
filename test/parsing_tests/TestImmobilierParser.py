@@ -55,6 +55,6 @@ class TestImmobilierParser(unittest.TestCase):
         result = self.parser.getRooms(input)
         room_cols = ['chambre', 'séjour', 'cuisine', 'wc', 'hall',
                      'outdoors', 'cave', 'réduit', 'Entrée', 'stores']
-        room_counts = [[2], [0], [1], [1], [0], [3], [0], [1], [0], [1]]
-        expected = pd.DataFrame(dict(zip(room_cols, room_counts)))
-        pd.testing.assert_frame_equal(result, expected)
+        room_counts = [2, 0, 1, 1, 0, 3, 0, 1, 0, 1]
+        expected = dict(zip(room_cols, room_counts))
+        self.assertEqual(result, expected)
