@@ -5,10 +5,10 @@ import yaml
 import re
 
 
-def extract_french_number(num_string_list):
+def extract_french_number(num_string):
     if len(num_string_list) == 0:
         return -1
-    defrenched = ''.join([p.replace('\'', '') for p in num_string_list[0]])
+    defrenched = ''.join([p.replace('\'', '') for p in num_string)
     price = re.findall('[0-9]+', defrenched)[0]
     return int(price)
 

@@ -1,5 +1,19 @@
 OK, first order of business will need to be to write a STANDARD test fixture.
 
+New architecture:
+
+Listing object is responsible for extracting all the fields from a given page.  The listing class defines getX for every field as a function that just returns the default data not FOUND
+
+Each Listing subclass e.g. ImmobilierListing has its own immobilier_get.yaml file, that defines an input, the expected resut, and the error message for each method.
+
+There is a test_gets_file.py script that checks that all methods of the base class are tested-- this will enforce that every time we write a parser for a new site, we write a test and therefore a function for every field we want to find.  The test_gets_file can also check the yaml test files are correctly formatted, which is sometimes useful.
+
+The ListingParser class is responsible for parsign a group of files, aggregating the data into a dataframe, and then saving the new data.
+
+Considering changing all the gets to return dicts so that Listing Parser can handle each in a standard way?
+
+Still working on modifying and standardizing the get functions for each listing parser (so that they don't take a response)
+
 ---
 I'm working on some refactoring.
 So I ran into this problem that on the one hand, it seems stupid and complicated that every function takes a response.  However, there are two reasons to do it this way:

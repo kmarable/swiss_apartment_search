@@ -3,114 +3,79 @@ import re
 import string
 import pandas as pd
 import numpy as np
-from src.utilities import make_case_insensitive, extract_french_number
+from src.utilities import make_case_insensitive
 import config
 import html
 from datetime import datetime
 
-class ImmoscoutParser(ListingParser):
+class ImmoscoutListing(Listing):
     listings_folder = 'data\\immoscout_pages'
+    test_file_path = 'test\\parsing_tests\\immoscout_gets.yaml'
 
-    def getText(self, response):
+    def __init__(response):
+        self.response = response
+        self.text = self._getText()
+
+    def _getText(self):
         test_text = (response.body).decode("utf-8")
         return html.unescape(test_text)
 
-    def getLoyerBrut(self, response):
-        assets = self.getText(response)
-        loyer_line = re.findall('Loyer brut \(mois\)</td><td class=[^>]*>CHF ([^<]*).—</td>', assets)
-        return extract_french_number(loyer_line)
+    def getLoyerBrut(self):
+        loyer_line = re.findall('Loyer brut \(mois\)</td><td class=[^>]*>CHF ([^<]*).—</td>', self.text)
+        return self._getFirstInt(loyer_line)
 
-    def getLoyerNet(self, response):
+    def getLoyerNet(self):
         assets = self.getText(response)
-        loyer_line = re.findall('Loyer net \(mois\)</td><td class=[^>]*>CHF ([^<]*).—</td>', assets)
-        return extract_french_number(loyer_line)
+        loyer_line = re.findall('Loyer net \(mois\)</td><td class=[^>]*>CHF ([^<]*).—</td>', self.text)
+        return self._getFirstInt(loyer_line)
 
-    def getCharges(self, response):
-        assets = self.getText(response)
-        loyer_line = re.findall('Charges \(mois\)</td><td class=[^>]*>CHF ([^<]*).—</td>', assets)
-        return extract_french_number(loyer_line)
+    def getCharges(self):
+        loyer_line = re.findall('Charges \(mois\)</td><td class=[^>]*>CHF ([^<]*).—</td>', self.text)
+        return self._getFirstInt(loyer_line)
 
-    def getAvailability(self, response):
-        assets = self.getText(response)
-        # To do : convert to datetime
-        availabilities = re.findall( 'Disponibilité</td><td class=[^>]+>([0-9]{2}.[0-9]{2}.[0-9]{4})</td>', assets)
-        if len(availabilities) > 0:
-            available_date = datetime.strptime( availabilities[0], '%d.%m.%Y')
-            return available_date
-        else:
-            return ''
+    def getAvailability(self):
+        availabilities = re.findall( 'Disponibilité</td><td class=[^>]+>([0-9]{2}.[0-9]{2}.[0-9]{4})</td>', self.text)
+        return self.getFirstDate(availabilities)
 
-    def getConstructionYear(self, response):
-        assets = self.getText(response)
+    def getConstructionYear(self):
         c_pattern = 'Année de construction</td><td class=[^>]+> ([0-9]+)'
-        years = re.findall(c_pattern, assets)
-        if len(years) > 0:
-            return (min([int(y) for y in years]))
-        else:
-            return -1
+        years = re.findall(c_pattern, self.text)
+        return self._getSmallestInt(years)
 
-    def getFloor(self, response):
+    def getFloor(self):
         pattern = 'Étage</td><td class=[^>]*>([0-9]+). étage</td>'
-        return self.getFirstIntMatchingPattern(pattern, response)
+        return self.getFirstInt(pattern, self.text)
 
     def getListingSpace(self, response):
         pattern = 'Surface habitable</td><td class=[^>]*>([0-9]+) m²</td>'
-        return self.getFirstIntMatchingPattern(pattern, response)
+        return self.getFirstInt(pattern, self.text)
 
-    def getAddress(self, response):
-        assets = self.getText(response)
+    def getAddress(self):
         address_pat = '>Emplacement</h2><p class=[^>]*>([a-zA-Z 0-9]+)<br/>([0-9]{4})<!-- --> <!-- -->([a-zA-Z]+) VD<!-- -->, VD</p>'
-        #'>Emplacement</h2><p class=[^>]*>([.]+)<br/>([0-9]{4})<!-- --> <!-- -->([a-zA-Z]) VD<!-- -->, VD</p>'
-        #'big\">\s*([\w\s]*)(<br>)*([\w\s-]*)<br>\s<a'
-        rough_address = re.findall(address_pat, assets)
+        rough_address = re.findall(address_pat, self.text)
         print ('ROUGH', rough_address)
 
         address_dict = {}
 
         if len(rough_address) == 0:
-            print('NO ADDRESS FOUND')
-            address_dict = dict(zip(['Street', 'Zip', 'City'],
-                                    ['',  -1, '']))
+            return self._getDefaultAddress()
         else:
             address_dict['Street'] = address_dict = dict(zip(['Street', 'Zip', 'City'],
                                     [rough_address[0][0], rough_address[0][1],rough_address[0][2]]))
         return(address_dict)
 
-    def getLatLong(self, response):
-        assets = self.getText(response)
-        latlong = re.findall('\"latitude\":([0-9.]+),\"longitude\":([0-9.]+)', assets)
-        if len(latlong) == 0:
-            return {'Latitude': -1, 'Longitude': -1}
-        else:
-            return {'Latitude': float(latlong[0][0]),
-                    'Longitude': float(latlong[0][1])}
+    def getLatLong(self):
+        latlong = re.findall('\"latitude\":([0-9.]+),\"longitude\":([0-9.]+)', self.text)
+        return self._getFirstLatLong(latlong)
 
-    def getDescription(self, response):
+    def getDescription(self):
         pattern = 'Description</h2><div class=[^>]*>([^<]*)</div>'
-        return self.getFirstStringMatchingPattern(pattern, response)
-
+        return self._getFirstString(pattern, self.text)
 
     def getReference(self, response):
         pattern = 'Référence</td><td class=[^>]*>([0-9.]+)</td>'
-        return self.getFirstStringMatchingPattern(pattern, response)
+        return self._getFirstString(pattern, self.text)
 
     def getAnnouncer(self, response):
         pattern = 'Annonceur</h2><p class=[^>]*><span>([^<]*)<br/>'
-        return self.getFirstStringMatchingPattern(pattern, response)
-
-    def getFirstStringMatchingPattern(self, pattern, response):
-        text = self.getText(response)
-        matches = re.findall(pattern, text)
-        print('matches', matches)
-        if len(matches) > 0:
-            return matches[0]
-        else:
-            return ''
-
-    def getFirstIntMatchingPattern(self, pattern, response):
-        text = self.getText(response)
-        matches = re.findall(pattern, text)
-        if len(matches) > 0:
-            return extract_french_number(matches)
-        else:
-            return -1
+        return self.getFirstString(pattern, self.text)

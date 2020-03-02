@@ -12,24 +12,113 @@ class Listing():
     def __init__(response):
         self.response = response
 
+# common helper functions
 
-    def getFirstInt(self, matches):
+    def _getFirstInt(self, matches):
         if len(matches) > 0:
-            return util.extract_french_number(matches)
+            return util.extract_french_number(matches[0])
         else:
             return -1
 
-    def getFirstString(self, matches):
+    def _getSmallestInst(self, matches):
+        if len(matches) > 0:
+            return (min([int(y) for y in years]))
+        else:
+            return self._getFirstInt(matches)
+
+    def _getFirstString(self, matches):
         if len(matches) > 0:
             return matches[0]
         else:
             return ''
 
-    def getFirstDate(self, matches):
+    def _getDefaultAddress(self):
+        address_dict = dict(zip(['Street', 'Zip', 'City'],
+                                ['', -1, '']))
+        return address_dict
+
+    def _getFirstLatLong(self, matches):
+        if len(latlong) == 0:
+            return {'Latitude': -1, 'Longitude': -1}
+        else:
+            return {'Latitude': float(latlong[0][0]),
+                    'Longitude': float(latlong[0][1])}
+
+
+    def _getFirstDate(self, matches):
         if len(matches) > 0:
-            return datetime.strptime(matches[0])
+            available_date = datetime.strptime( matches[0], '%d.%m.%Y')
+            return available_date
         else:
             return datetime(0,0,0,0,0,0)
+
+    def _loadRoomBasepatterns(self):
+        with open('src\\parser\\rooms.yaml', encoding='utf8') as file:
+            rooms = yaml.load(file, Loader=yaml.FullLoader)
+            return(rooms)
+
+    def _loadRoomColumns(self):
+        rooms = self.load_room_basepatterns()
+        room_columns = [r.split('|')[0] for r in rooms]
+        return room_columns
+
+# functions that return fields, all should be defined in inheriting classes
+# here defined as finding no data and returning appropriate default for expected data type
+
+    def getAvailability(self):
+        matches =[]
+        return self._getFirstDate(matches)
+
+    def getConstructionYear(self):
+        matches =[]
+        return self._getFirstInt(matches)
+
+    def getFloor(self):
+        matches =[]
+        return self._getFirstInt(matches)
+
+    def getLoyerNet(self):
+        matches =[]
+        return self._getFirstInt(matches)
+
+    def getCharges(self):
+        matches =[]
+        return self._getFirstInt(matches)
+
+    def getLoyerBrut(self):
+        matches =[]
+        return self._getFirstInt(matches)
+
+    def getListingSpace(self):
+        matches =[]
+        return self._getFirstInt(matches)
+
+    def getDescription(self):
+        matches =[]
+        return self._getFirstString(matches)
+
+    def getAddress(self):
+        matches = []
+        return self._getAddressString(matches)
+
+    def getLatLong(self):
+        return {'Latitude': -1, 'Longitude': -1}
+
+    def getRooms(self):
+        rooms = self._loadRoomColumns()
+        return dict(zip(rooms), len(rooms)*[0])
+
+    def getReference(self):
+        matches =[]
+        return self._getFirstString(matches)
+
+    def getAnnouncer(self):
+        matches =[]
+        return self._getFirstString(matches)
+
+    def getHost():
+        matches =[]
+        return self._getFirstString(matches)
 
 class ListingParser():
     listings_folder = ''
@@ -102,35 +191,3 @@ class ListingParser():
             rooms_in_ad[col] = sum(numbers_mentioned)
 
         return(rooms_in_ad)
-
-    def load_rooms(self):
-        with open('src\\parser\\rooms.yaml', encoding='utf8') as file:
-            rooms = yaml.load(file, Loader=yaml.FullLoader)
-            return(rooms)
-
-    def getAvailability(self, r):
-        pass
-
-    def getYear(self, r):
-        pass
-
-    def getFloor(self, r):
-        pass
-
-    def getAddress(self, r):
-        pass
-
-    def getLoyer(self, r):
-        pass
-
-    def getCharges(self, r):
-        pass
-
-    def getSpace(self, r):
-        pass
-
-    def getReference(self, r):
-        pass
-
-    def getPoster(self, r):
-        pass
