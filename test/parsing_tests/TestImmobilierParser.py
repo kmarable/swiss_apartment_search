@@ -3,6 +3,9 @@ import yaml
 from scrapy.selector import Selector
 from src.parser.ImmobilierParser import ImmobilierParser
 import pandas as pd
+import sys
+import test.parsing_tests.test_utilities as utils
+
 
 
 class TestImmobilierParser(unittest.TestCase):
@@ -14,23 +17,8 @@ class TestImmobilierParser(unittest.TestCase):
         self.assertEqual(result, '')
 
     def test_AllGetFunctions(self, v=True):
-        test_file_path = 'test\\parsing_tests\\immobilier_gets.yaml'
-        with open(test_file_path, encoding='utf8') as file:
+        utils.TestAllGetFunctionsOnSnippets(self.parser)
 
-            tests_dict = yaml.load(file, Loader=yaml.FullLoader)
-            for k in tests_dict.keys():
-
-                test_parameters = tests_dict[k]
-                input = Selector(text=test_parameters['input_text'])
-                method = test_parameters['method_to_test']
-                result = getattr(self.parser, method)(input)
-                if v:
-                    print(result)
-                self.assertEqual(result, test_parameters['expected'], test_parameters['error_message'])
-                bad_input = Selector(text='blah')
-                method = test_parameters['method_to_test']
-                result = getattr(self.parser, method)(bad_input)
-                self.assertEqual(result, test_parameters['bad_expected'], 'does not handle bad input')
 
     def test_getAddress(self):
         test_file = 'test\\parsing_tests\\address_test.html'
@@ -56,5 +44,6 @@ class TestImmobilierParser(unittest.TestCase):
         room_cols = ['chambre', 'séjour', 'cuisine', 'wc', 'hall',
                      'outdoors', 'cave', 'réduit', 'Entrée', 'stores']
         room_counts = [2, 0, 1, 1, 0, 3, 0, 1, 0, 1]
+        print(room_counts)
         expected = dict(zip(room_cols, room_counts))
         self.assertEqual(result, expected)

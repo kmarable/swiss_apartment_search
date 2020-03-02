@@ -1,3 +1,39 @@
+OK, first order of business will need to be to write a STANDARD test fixture.
+
+---
+I'm working on some refactoring.
+So I ran into this problem that on the one hand, it seems stupid and complicated that every function takes a response.  However, there are two reasons to do it this way:
+1) this makes it easy to do list comprehensions over all new files at once.  Class has an extract all function that calls [ImmobilierParser.getX(r) for r in responses] Alternative might be to make, like, a Listing object that does all the actual parsing.  Then start by making an array of new listings, listings =  [Listing(r) for r in responses].  Then call [l.getX() for l in listings].
+
+2) It makes testing much easier because we can simply feed in individual responses.  But, I think this just adds one step?  make fact resposne then call test_listing = Listing(test_response).  test_listing.getX().
+
+
+So, pros:
+  *Avoid a bunch of extra passing around of html files, which is good for performance and possibly good for code readability.
+  *Might also help avoid redundant calls-- for example, in Immobilierparser can just get the listing assets when we initialize and store as a class attribute, instead of calling getListingAssets every time.
+  * Feels more 'object oriented' to separate out things that handle all of the files from things that search individual files.
+
+Cons:
+  *Need to rewrite some things.
+  *Feels like it will reduce flexibility because it will be harder to pass different responses to different functions... but as in example above, this can maybe be solved with good classes.
+  * Will maybe change inheritance of parser classes?
+  * Will end up with more classes to keep track of
+
+Since point of the project was learning anyway, I'll do it.
+For this stage of the project, I need to add saving reference number and announcer, duplicate removal script, and finish standardizing/coordinating between spiders and parsers.  Seems like the natural thing to do is add number and announcer to Immobilier, then start refactoring.
+
+Dammit.  Check encoding that I am saving pages too.
+
+
+
+
+
+
+
+
+
+
+
 DONE
 * Made a file class that can update the same raw data file and backfill nas when new features are added, while backing up the old files.  I feel like I have a better understanding of why ppl use databases.
 *Wrote some parsing functions

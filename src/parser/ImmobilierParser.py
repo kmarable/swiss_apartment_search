@@ -5,64 +5,60 @@ import pandas as pd
 import numpy as np
 from src.utilities import make_case_insensitive
 
+class ImmobilierListing(Listing):
 
-class ImmobilierParser(ListingParser):
-    listings_folder = 'data\\immobilier_pages'
+    def __init__(response):
+        self.response = response
+        self.assets = self.getListingAssets()
 
-    def getListingAssets(self, response):
-        assets = response.css('div.im__assets__table').get()
+    def getListingAssets(self):
+        assets = self.response.css('div.im__assets__table').get()
         if assets is None:
             return ''
         else:
             return assets
 
-    def getAvailability(self, response):
-        assets = self.getListingAssets(response)
-        # To do : convert to datetime
-        availabilities = re.findall(r'Disponible dès\s*(.*\S)[\s\t]*', assets)
-        if len(availabilities) > 0:
-            return availabilities[0]
-        else:
-            return 'No info'
+    def getAvailability(self):
+        availabilities = re.findall(r'Disponible dès\s*(.*\S)[\s\t]*', self.assets)
+        return self.getFirstDate(availabilities)
 
-    def getConstructionYear(self, response):
-        assets = self.getListingAssets(response)
+    def getConstructionYear(self):
         c_pattern = r'onstruit en\s*([0-9]*)[\s\t]*'
-        years = re.findall(c_pattern, assets)
-        if len(years) > 0:
-            return (min([int(y) for y in years]))
-        else:
-            return -1
+        years = re.findall(c_pattern, self.assets)
+        return self.getFirstInt(years)
 
     def getFloor(self, response):
-        assets = self.getListingAssets(response)
-        if re.search(r'Rez-de-chaussée', assets):
+        if re.search(r'Rez-de-chaussée', self.assets):
             return 0
-        floors = re.findall(r'([2-9])ème étage', assets)
-        floors.extend(re.findall(r'(1)er étage', assets))
-        if len(floors):
-            return int(floors[0])
-        else:
-            return -1
+        floors = re.findall(r'([2-9])ème étage', self.assets)
+        floors.extend(re.findall(r'(1)er étage', self.assets))
+        return self.getFirstInt(floors)
 
     def getLoyerNet(self, response):
-        assets = self.getListingAssets(response)
-        loyer_line = re.findall('Loyer : CHF [0-9\']*.-/mois', assets)
-        return extract_french_number(loyer_line)
+        loyer_line = re.findall('Loyer : CHF [0-9\']*.-/mois', self.assets)
+        return self.getFirstInt(loyer_line)
 
     def getCharges(self, response):
         assets = self.getListingAssets(response)
-        charges_line = re.findall('Charges : CHF [0-9\']*', assets)
-        return extract_french_number(charges_line)
+        charges_line = re.findall('Charges : CHF [0-9\']*', self.assets)
+        return self.getFirstInt(charges_line)
+
 
     def getListingSpace(self, response):
-        assets = self.getListingAssets(response)
-        space = re.findall(r'([0-9]+)\sm<sup', assets)
+        space = re.findall(r'([0-9]+)\sm<sup', self.assets)
+        return getFirstInt(space)
 
-        if len(space) > 0:
-            return int(space[0])
+    def getDescription(self, response):
+        postContent = response.css('div.im__postContent__body p').get()
+        if postContent is None:
+            return ''
         else:
-            return -1
+            return(postContent)
+
+
+class ImmobilierParser(ListingParser):
+    listings_folder = 'data\\immobilier_pages'
+    test_file_path = 'test\\parsing_tests\\immobilier_gets.yaml'
 
     def addZipAndCitytoDict(self, address_dict, string):
         city_pat = '(Prilly|Renens|Ecublens|Lausanne)'
@@ -111,12 +107,6 @@ class ImmobilierParser(ListingParser):
             return {'Latitude': float(latlong[0][0]),
                     'Longitude': float(latlong[0][1])}
 
-    def getDescription(self, response):
-        postContent = response.css('div.im__postContent__body p').get()
-        if postContent is None:
-            return ''
-        else:
-            return(postContent)
 
     def getRooms(self, response):
         test = self.getDescription(response)
@@ -150,6 +140,25 @@ class ImmobilierParser(ListingParser):
     def getHost(self):
         return 'Immobilier'
 
+    def getReference(self, response):
+        assets = self.getListingAssets(response)
+        reference = re.findall('rence\s*([0-9.]+)\s*</span>', assets)
+        if len(reference) == 0:
+            return ''
+        else:
+            return reference[0]
+
+    def getAnnouncer(self, response):
+        print('myrespo', response, type(response))
+        assets =  (response.body).decode("utf-8")
+#</figure>[/s/n/r]*<address>[/s/n/r]*
+        print('the assets', assets)
+        announcer = re.findall('<strong>([^<]+)</strong>', assets)
+        print('ann', announcer)
+        if len(announcer) == 0:
+            return ''
+        else:
+            return announcer[0]
 
 def extract_french_number(num_string_list):
     if len(num_string_list) == 0:

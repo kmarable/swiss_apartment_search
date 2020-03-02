@@ -1,10 +1,4 @@
-#getFloor
-test_getFloor2eme_to_9eme:
-  input_text: "Étage</td><td class=\"sc-1o2xig5-3 kyAYIf\">1. étage</td>"
-  expected: 1
-  bad_expected: -1
-  method_to_test: 'getFloor'
-  error_message: 'Does not get 1 from 1. étage'
+#getConstructionYear
 test_getConstructionYearwhenExists:
   input_text:  "Année de construction</td><td class=\"whatever\"> 2017"
   expected: 2017
@@ -23,6 +17,12 @@ test_getCharges:
   bad_expected: -1
   method_to_test: 'getCharges'
   error_message: 'Does not get Charges from Charges (mois)  60'
+test_getLoyerBrut:
+  input_text: "Loyer brut (mois)</td><td class=\"sc-1o2xig5-3 kyAYIf\">CHF 740.—</td>"
+  expected: 740
+  bad_expected: -1
+  method_to_test: 'getLoyerBrut'
+  error_message: 'Does not get Loyer brut for immoscout'
 test_getListingSpace:
   input_text: "Surface habitable</td><td class=\"sc-1o2xig5-3 kyAYIf\">24 m²</td>"
   expected: 24
@@ -42,23 +42,14 @@ test_getDescription:
   method_to_test: 'getDescription'
   error_message: 'Does not get description from'
 test_getReference:
-  input_text: |-
-    'Annonce</h2><table class="sc-1o2xig5-1 da-dKgL"><tbody><tr class="sc-1o2xig5-2 kKCsJl\"><td class="sc-1o2xig5-3 dXMDYu">Code ImmoScout24</td><td class="sc-1o2xig5-3 kyAYIf">5889887</td></tr><tr class="sc-1o2xig5-2 kKCsJl"><td class="sc-1o2xig5-3 dXMDYu">Référence</td><td class="sc-1o2xig5-3 kyAYIf">0206.02.008.16</td>'
+  input_text: "Annonce</h2><table class="sc-1o2xig5-1 da-dKgL"><tbody><tr class="sc-1o2xig5-2 kKCsJl"><td class="sc-1o2xig5-3 dXMDYu">Code ImmoScout24</td><td class="sc-1o2xig5-3 kyAYIf">5889887</td></tr><tr class="sc-1o2xig5-2 kKCsJl"><td class="sc-1o2xig5-3 dXMDYu">Référ'e'nce</td><td class="sc-1o2xig5-3 kyAYIf">0206.02.008.16</td>"
   expected: '0206.02.008.16'
   bad_expected: ''
   method_to_test: 'getReference'
   error_message: 'Does not get Reference'
 test_getAvailability:
-  input_text: |-
-    'Disponibilité</td><td class="sc-1o2xig5-3 kyAYIf">01.06.2020</td>'
-  expected: 2020-06-01 00:00:00
+  input_text: "Disponibilité</td><td class=\"sc-1o2xig5-3 kyAYIf\">01.06.2020</td>"
+  expected: '2020-06-01'
   bad_expected: ""
   method_to_test: 'getAvailability'
-  error_message: 'did not get availability from test text'
-test_getAnnouncer:
-  input_text: |-
-    'Annonceur</h2><p class="sc-1w14opy-0 bRPxzE"><span>Régie Braun SA<br/>'
-  expected: Régie Braun SA
-  bad_expected: ''
-  method_to_test: getAnnouncer
-  error_message: 'did not find announcer'
+  error_message: 'didn't get availability from test text'

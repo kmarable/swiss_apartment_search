@@ -60,3 +60,23 @@ test_getDescription:
     bad_expected: ""
     method_to_test: 'getDescription'
     error_message: 'Do not get description from im__postContent__body'
+test_getReference:
+    input_text: |-
+      '<div class="im__assets__table"><span class="im__assets__title im__assets__title--big"> Référence 5611.450010										</span></div>'
+    expected: '5611.450010'
+    bad_expected: ''
+    method_to_test: 'getReference'
+    error_message: 'cant get reference 5611.450010'
+test_getAnnouncer:
+    input_text: |-
+      '</figure>
+
+      <address>
+
+              <strong>GALLAND &amp; CIE SA</strong>
+
+                <br />'
+    expected: 'GALLAND &amp; CIE SA'
+    bad_expected: ''
+    method_to_test: 'getAnnouncer'
+    error_message: 'cant get announcer GALLAND &amp; CIE SA'
