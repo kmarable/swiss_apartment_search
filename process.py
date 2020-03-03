@@ -1,14 +1,18 @@
+import pandas as import pd
 from src.utilities.dataFile import DataFile
 from src.location import M1Line
+from src.config import conf
 
+
+def remove_duplicates(df):
+    #basically want to pivot a few columsn
+    df.pivot(index=['Announcer', 'Reference'], columns='host', values='id')
 
 def process():
-    raw_data = DataFile()
+    raw_file = conf['DEFAULT']['raw_file']
+    raw_data = pd.read_csv()
 
-    df = raw_data.read_file()
-
-    df['TotalRent'] = df['LoyerNet'] + df['Charges']
-
+    no_duplicates = raw_data.remove_duplicates()
     latlong = zip(df['Latitude'], df['Longitude'])
     coord_list = [(x, y) for x, y in latlong]
     line = M1Line()

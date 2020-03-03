@@ -2,44 +2,37 @@
 test_getFloor2eme_to_9eme:
   input_text: '<div class="im__assets__table">  <div> 3ème étage</div></div>'
   expected: 3
-  bad_expected: -1
   method_to_test: 'getFloor'
   error_message: 'Does not get 3 from 3ème étage'
 test_getFloor1er:
   input_text: '<div class="im__assets__table"> <div> 1er étage</div></div>'
   expected: 1
-  bad_expected: -1
   method_to_test: 'getFloor'
   error_message: 'not correctly parsing 1er étage'
 test_getFloorRDC:
   input_text: "<div class=\"im__assets__table\"> <div>Rez-de-chaussée </div></div>"
   expected: 0
-  bad_expected: -1
   method_to_test: 'getFloor'
   error_message: 'not correctly parsing RDC'
 #getConstructionYear
 test_getConstructionYearwhenExists:
   input_text: '<div class="im__assets__table">  <div> Construit en 2017</div> </div>'
   expected: 2017
-  bad_expected: -1
   method_to_test: 'getConstructionYear'
   error_message: 'Does not get 2017 from Construit en 2017'
 test_getLoyerNet:
   input_text: "<div class=\"im__assets__table\"> <span> Loyer : CHF 1'555.-/mois </span></div>"
   expected: 1555
-  bad_expected: -1
   method_to_test: 'getLoyerNet'
   error_message: "Does not get Loyer from Loyer : CHF 1'555"
 test_getCharges:
   input_text: '<div class="im__assets__table">  <div> Charges : CHF 155.-	</div></div>'
   expected: 155
-  bad_expected: -1
   method_to_test: 'getCharges'
   error_message: 'Does not get Charges from Charges : CHF  155'
 test_getListingSpace:
    input_text: '<div class="im__assets__table"> <div> 72 m<sup>2</sup> (habitables)		</div> </div>'
    expected: 72
-   bad_expected: -1
    method_to_test: 'getListingSpace'
    error_message: 'Does not get 72 from 72 m<sup>2</sup> (habitables)'
 test_getLatLong:
@@ -57,26 +50,42 @@ test_getDescription:
                 </p></div>"
     expected: "<p>Joli appartement de 3.5 pièces au 2ème étage d'une surface totale de 72m2 comprenant :<br><br>- deux chambres à coucher<br>
     </p>"
-    bad_expected: ""
     method_to_test: 'getDescription'
     error_message: 'Do not get description from im__postContent__body'
 test_getReference:
     input_text: |-
-      '<div class="im__assets__table"><span class="im__assets__title im__assets__title--big"> Référence 5611.450010										</span></div>'
+        '<div class="im__assets__table"><span class="im__assets__title im__assets__title--big"> Référence 5611.450010										</span></div>'
     expected: '5611.450010'
-    bad_expected: ''
     method_to_test: 'getReference'
     error_message: 'cant get reference 5611.450010'
 test_getAnnouncer:
     input_text: |-
-      '</figure>
-
-      <address>
-
-              <strong>GALLAND &amp; CIE SA</strong>
-
-                <br />'
-    expected: 'GALLAND &amp; CIE SA'
-    bad_expected: ''
+        '<a class="link-detail-agency-url" value="381825" href="https://www.livit.ch" target="_blank">'
+    expected: 'www.livit.ch'
     method_to_test: 'getAnnouncer'
+    error_message: 'Did not find announcer'
+test_getRooms:
+    input_text: |-
+        '<div class='im__postContent__body'><p> Joli appartement de 3.5 pièces au 2ème étage d'une surface totale de 72m2 comprenant : <BR><BR>- deux chambres à coucher<BR>- un salon <BR>- une cuisine semi-agencée (frigo) <BR>- une salle de bain<BR>- un WC séparé<BR> - 3 balcons<BR> - stores  -un spacieux r&#233;duit  <BR><BR></p></div>'
+    expected: {'chambre': 2, 'séjour': 0, 'cuisine': 1, 'wc': 1, 'Entrée ': 0, 'balcon': 3, 'jardin': 0, 'cave': 0, 'stores ': 2}
+    method_to_test: 'getRooms'
+    error_message: 'did not get correct rooms'
+test_getAddress:
+    input_text: '<div class="im__assets__table"><span class="im__assets__title im__assets__title--big">
+Chemin de Rionza 17<br />1020 Renens<br /><span /> <div />'
+    expected: {'Street' : 'Chemin de Rionza 17', 'Zip': 1020, 'City': 'Renens'}
+    method_to_test: 'getAddress'
+    error_message: 'did not get address from Chemin de Rionza 17<br />1020 Renens<br />'
+test_getAvailability:
+    input_text: '<div class="im__assets__table"><span class="im__assets__title im__assets__title--big">
+
+Disponible des avril 2020										</span></div>'
+    expected: 2020-04-01 00:00:00
+    method_to_test: getAvailability
+    error_message: 'did not get 2020-04-01 from Disponible des avril 2020'
+test_getLoyerBrut:
+    input_text: '<div class="im__assets__table">  <div> Charges : CHF 155.-	</div> <span> Loyer : CHF 1''555.-/mois </span></div>'
+    expected: 1710
+    method_to_test: 'getLoyerBrut'
+    error_message: 'Did not correctly get loyer brut by adding 1,555 to 155'
     error_message: 'cant get announcer GALLAND &amp; CIE SA'

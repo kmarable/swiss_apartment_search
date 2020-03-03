@@ -1,9 +1,8 @@
-from src.parser.ImmobilierParser import ImmobilierParser
+from src.parser.ListingParser import ListingParser
 
 
 def update_raw():
-    parser = ImmobilierParser()
-
+    parser = ListingParser()
     parser.extractAll()
 
 

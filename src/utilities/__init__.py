@@ -1,24 +1,27 @@
 from scrapy.http import TextResponse, Request
-from googlemaps.geocoding import geocode
 import pandas as pd
-import yaml
 import re
+import inspect
+
+
+
+def get_get_functions(class_):
+    def isPublic(name):
+        return name[0] != '_'
+
+    def isGet(name):
+        return 'get' in name
+    methods = inspect.getmembers(class_)
+    method_names = [m[0] for m in methods if isGet(m[0]) and isPublic(m[0])]
+    return method_names
 
 
 def extract_french_number(num_string):
-    if len(num_string_list) == 0:
+    if len(num_string) == 0:
         return -1
-    defrenched = ''.join([p.replace('\'', '') for p in num_string)
+    defrenched = ''.join([p.replace('\'', '') for p in num_string])
     price = re.findall('[0-9]+', defrenched)[0]
     return int(price)
-
-
-def load_raw_data(arg):
-    with open('config.yaml', encoding='utf8') as file:
-        params = yaml.load(file, Loader=yaml.FullLoader)
-        return(params)
-
-    raw_file = params[0]
 
 
 def response_from_file(file_name, url=None):
@@ -66,7 +69,7 @@ def make_case_insensitive(pattern):
         if i.isalpha():
             final_expression = final_expression + '[' + i + j + ']'
         elif i == '-':
-            final_expression = final_expression + '[-\s]'
+            final_expression = final_expression + r'[-\s]'
         else:
             final_expression = final_expression+j
     return final_expression

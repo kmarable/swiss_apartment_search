@@ -1,3 +1,0 @@
-* Got some really wierd results when I tried breaking up a page into listings with css then processing the individuals using xpaths-- seemed like xpaths were returning results for entire page instead of an individual listing.  Using css for both steps worked.
-
-*https://stackoverflow.com/questions/38413829/logging-in-scrapy

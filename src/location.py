@@ -17,7 +17,7 @@ class M1Stop():
 
     def getApproxTravelTime(self, coords):
         dist = self.getDistance(coords)
-        return (dist/WALKINGSPEED)/60 # convert to minutes
+        return (dist/WALKINGSPEED)/60  # convert to minutes
 
 
 class M1Line():
@@ -48,8 +48,7 @@ class M1Line():
         print(output)
         return output
 
-#    def getNearestM1Stops(self, coords_list)
-#        approx_results = [findNearestM1Stops(c) for c in coords_list]
+
 def getRankedList(inlist):
     indices = list(range(len(inlist)))
     indices.sort(key=lambda x: inlist[x])

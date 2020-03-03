@@ -2,63 +2,68 @@
 test_getFloor2eme_to_9eme:
   input_text: "Étage</td><td class=\"sc-1o2xig5-3 kyAYIf\">1. étage</td>"
   expected: 1
-  bad_expected: -1
   method_to_test: 'getFloor'
   error_message: 'Does not get 1 from 1. étage'
 test_getConstructionYearwhenExists:
   input_text:  "Année de construction</td><td class=\"whatever\"> 2017"
   expected: 2017
-  bad_expected: -1
   method_to_test: 'getConstructionYear'
   error_message: 'Does not get 2017 from Construit en 2017'
 test_getLoyerNet:
   input_text: "Loyer net (mois)</td><td class=\"sc-1o2xig5-3 kyAYIf\">CHF 680.—</td>"
   expected: 680
-  bad_expected: -1
   method_to_test: 'getLoyerNet'
   error_message: "Does not get Loyer"
 test_getCharges:
   input_text: "Charges (mois)</td><td class=\"sc-1o2xig5-3 kyAYIf\">CHF 60.—</td>"
   expected: 60
-  bad_expected: -1
   method_to_test: 'getCharges'
   error_message: 'Does not get Charges from Charges (mois)  60'
 test_getListingSpace:
   input_text: "Surface habitable</td><td class=\"sc-1o2xig5-3 kyAYIf\">24 m²</td>"
   expected: 24
-  bad_expected: -1
   method_to_test: 'getListingSpace'
   error_message: 'Does not get 24 from 24 m² (habitables)'
 test_getLatLong:
   input_text: "\"latitude\":46.53901,\"longitude\":6.59477"
   expected: {'Latitude' : 46.53901, 'Longitude' : 6.59477}
-  bad_expected: {'Latitude' : -1, 'Longitude' : -1}
   method_to_test: 'getLatLong'
   error_message: 'Does not get latitude from filter item'
 test_getDescription:
   input_text: "Description</h2><div class=\"sc-7t0e82-0 kYSzxt\">Cuisinette dans l&#x27;entrée, frigo, réchaud à deux plaques, salle de bains/WC.</div><hr class=\"sc-2qoai2-0 jpvnoR\"/>"
   expected: "Cuisinette dans l'entrée, frigo, réchaud à deux plaques, salle de bains/WC."
-  bad_expected: ""
   method_to_test: 'getDescription'
   error_message: 'Does not get description from'
 test_getReference:
   input_text: |-
     'Annonce</h2><table class="sc-1o2xig5-1 da-dKgL"><tbody><tr class="sc-1o2xig5-2 kKCsJl\"><td class="sc-1o2xig5-3 dXMDYu">Code ImmoScout24</td><td class="sc-1o2xig5-3 kyAYIf">5889887</td></tr><tr class="sc-1o2xig5-2 kKCsJl"><td class="sc-1o2xig5-3 dXMDYu">Référence</td><td class="sc-1o2xig5-3 kyAYIf">0206.02.008.16</td>'
   expected: '0206.02.008.16'
-  bad_expected: ''
   method_to_test: 'getReference'
   error_message: 'Does not get Reference'
 test_getAvailability:
   input_text: |-
     'Disponibilité</td><td class="sc-1o2xig5-3 kyAYIf">01.06.2020</td>'
   expected: 2020-06-01 00:00:00
-  bad_expected: ""
   method_to_test: 'getAvailability'
   error_message: 'did not get availability from test text'
 test_getAnnouncer:
   input_text: |-
-    'Annonceur</h2><p class="sc-1w14opy-0 bRPxzE"><span>Régie Braun SA<br/>'
-  expected: Régie Braun SA
-  bad_expected: ''
+     'Annonceur</h2><div class="sc-5ap7u0-0 lfWmih"><div class="sc-5ap7u0-1 lfWmii"><img src="https://www.immoscout24.ch/resources/memberlogos/L34525-R.jpg" alt="Logo"/></div></div><p class="sc-1w14opy-0 bRPxzE"><span>Caisse de pensions Migros<br/></span><span>Fernandez Sabrina<br/></span><span>Route de la Pierre 22<br/></span><span>1024 Ecublens VD<br/></span></p><table class="sc-1o2xig5-1 cUeapZ"><tbody><tr class="sc-1o2xig5-2 kKCsJl"><td class="sc-1o2xig5-3 bAGQHS">Professionnel</td><td class="sc-1o2xig5-3 bAGQHS"><a href="tel:021 652 92 22" class="sc-1u0if05-0 kVPYnb"><svg viewBox="0 0 24 24" sizes="" class="l0tb7n-0 WTJeW"><path d="M19.2 15.3l-2.5-.3c-.6-.1-1.2.1-1.6.6l-1.8 1.8c-2.8-1.4-5.1-3.7-6.6-6.6l1.9-1.9c.4-.4.6-1 .5-1.6l-.3-2.5c-.1-1-1-1.8-2-1.8H5c-1.1 0-2 .9-2 2v.1c.5 8.6 7.4 15.4 15.9 15.9 1.1 0 2-.8 2.1-1.9V17.2c0-1-.8-1.8-1.8-1.9z"></path></svg>021 652 92 22</a></td></tr></tbody></table><table class="sc-1o2xig5-1 dcYFcn"><tbody><tr class="sc-1o2xig5-2 kRTYLR"><td class="sc-1o2xig5-3 bAGQHS"><a href="http://www.mpk-immobilien.ch" target'
+  expected: 'www.mpk-immobilien.ch'
   method_to_test: getAnnouncer
   error_message: 'did not find announcer'
+test_getAddress:
+    input_text: '>Emplacement</h2><p class="sc-1w14opy-0 bRPxzE">Rue du Bugnon 33<br/>1020<!-- --> <!-- -->Renens VD<!-- -->, VD</p>'
+    expected: {'Street': 'Rue du Bugnon 33', 'Zip' : 1020, 'City' :'Renens'}
+    method_to_test: 'getAddress'
+    error_message: 'cannot get address Rue du Bugnon 33<br/>1020<!-- --> <!-- -->Renens VD'
+test_getLoyerBrut:
+    input_text: 'Loyer brut (mois)</td><td class="sc-1o2xig5-3 kyAYIf">CHF 740.—</td>'
+    expected: 740
+    method_to_test: 'getLoyerBrut'
+    error_message: 'does not extract 740 for loyer brut'
+test_getRooms:
+    input_text: 'Description</h2><div class="sc-7t0e82-0 kYSzxt">Cuisinette dans l&#x27;entrée, frigo, réchaud à deux plaques, salle de bains/WC.</div>'
+    expected: {'chambre': 0, 'séjour': 0, 'cuisine': 1, 'wc': 2, 'Entrée ': 0, 'balcon': 0, 'jardin': 0, 'cave': 0, 'stores ': 0}
+    method_to_test: 'getRooms'
+    error_message: 'does not count rooms correctly in Cuisinette dans l&#x27;entrée, frigo, réchaud à deux plaques, salle de bains/WC '

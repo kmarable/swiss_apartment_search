@@ -5,14 +5,14 @@ from sas_scraper.sas_scraper.spiders import ApartmentSpider
 class ImmoscoutSpider(ApartmentSpider):
     name = "Immoscout"
 
-    def getSite(self):
+    def getHost(self):
         return 'Immoscout'
 
     def getUrls(self):
         urls = [
             'https://www.immoscout24.ch/fr/immobilier/louer/lieu-renens-vd',
             'https://www.immoscout24.ch/fr/immobilier/louer/lieu-prilly',
-            'https://www.immoscout24.ch/fr/immobilier/louer/lieu-ecublens',
+            'https://www.immoscout24.ch/fr/immobilier/louer/lieu-ecublens-vd',
             'https://www.immoscout24.ch/fr/immobilier/louer/lieu-lausanne'
         ]
         return urls
@@ -28,22 +28,27 @@ class ImmoscoutSpider(ApartmentSpider):
         pageData = self.getScript(response)
         currentPage = re.findall('"currentPage":([0-9]+)', pageData)[0]
         totalPages = re.findall('"totalPages":([0-9]+)', pageData)[0]
+        self.log('total pages %s' % totalPages)
+        self.log('current pages %s' % currentPage)
         if currentPage == totalPages:
             return True
         else:
             return False
 
     def getNextPage(self, url):
+        self.log('searching url %s' % url)
         result = re.findall('(.*pn=)([0-9]+)', url)
         if len(result) > 0:
             address_components = result[0]
             page_num = address_components[1]
             new_page_num = int(page_num) + 1
             new_address = address_components[0] + str(new_page_num)
+            self.log('page >2 url %s' % new_address)
             return(new_address)
         else:
-            print('bad address format')
-            return None
+            new_url = url + '?pn=2'
+            self.log('page 2 url %s' % new_url)
+            return new_url
 
     def getListingLink(self, listing):
         link = listing.css("article a").attrib['href']

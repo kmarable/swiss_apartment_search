@@ -2,14 +2,13 @@ import os
 import re
 import pandas as pd
 from datetime import date
-from src.config import conf
 from sas_scraper.sas_scraper.spiders import ApartmentSpider
 
 
 class ImmobilierSpider(ApartmentSpider):
     name = "Immobilier"
 
-    def getSite(self):
+    def getHost(self):
         return 'Immobilier'
 
     def getUrls(self):
