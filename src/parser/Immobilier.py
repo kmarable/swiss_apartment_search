@@ -48,9 +48,13 @@ class ImmobilierListing(Listing):
 
     def getLoyerBrut(self):
         # no example found yet, so calculate from charges + loyer
-        if self.getLoyerNet() > 0 | self.getCharges() > 0:
+        print('loyer_net', self.getLoyerNet())
+        print('charges', self.getCharges())
+        if self.getLoyerNet() > 0 or self.getCharges() > 0:
+            print('loyer_net')
             return self.getLoyerNet() + self.getCharges()
         else:
+            print('no loyer net')
             return -1
 
     def getListingSpace(self):

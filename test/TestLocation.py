@@ -36,11 +36,11 @@ class TestM1Line(unittest.TestCase):
         self.assertTrue(abs(result_time - 4) < 1)
 
     def testgetDFofNearestStops(self):
-        input = [(46.5263148, 6.5673744), (46.5386958, 6.5784506)]
+        input = [(0, 46.5263148, 6.5673744), (1, 46.5386958, 6.5784506)]
         result = self.line.getDFofNearestStops(input)
-        expected = pd.DataFrame(columns=['ClosestStop', 'TimeToClosestStop'],
+        expected = pd.DataFrame(columns=['NearestStop', 'TimeToNearestStop'],
                                 data=[['Bassenges',  4.237774],
-                                      ['Renens', 2.884841]])
+                                      ['Renens', 2.884841]], index=[0, 1])
         print(expected)
         pd.testing.assert_frame_equal(result, expected)
 

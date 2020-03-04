@@ -7,6 +7,7 @@ class Header():
         self.link = link
         self.id = id
         self.host = host
+        self.date = the_date
         if the_date == '':
             self.date = str(date.today())
 

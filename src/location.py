@@ -41,11 +41,11 @@ class M1Line():
         return (self.stops[nth_closest_index].name, times[nth_closest_index])
 
     def getDFofNearestStops(self, coords_iterable):
-        nearest_stops = [self.getNearestM1Stop(c) for c in coords_iterable]
-        output = pd.DataFrame()
+        coords_list = [c[1:] for c in coords_iterable]
+        nearest_stops = [self.getNearestM1Stop(c) for c in coords_list]
+        output = pd.DataFrame(index=[i[0] for i in coords_iterable])
         output['NearestStop'] = [n[0] for n in nearest_stops]
         output['TimeToNearestStop'] = [n[1] for n in nearest_stops]
-        print(output)
         return output
 
 

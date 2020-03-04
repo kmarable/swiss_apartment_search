@@ -36,8 +36,6 @@ class ListingParser():
 
         for m in methods:
             new_field = [getattr(l, m)() for l in listings]
-            if m == 'getRooms':
-                continue
             if isinstance(new_field[0], dict):
                 new_df = util.dictListToDataFrame(new_field)
                 new_data = new_df.join(new_data, how='outer')
