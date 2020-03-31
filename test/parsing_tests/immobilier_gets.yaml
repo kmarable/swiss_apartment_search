@@ -48,8 +48,7 @@ test_getDescription:
 				<h2>Proche de toutes les commodités - Quartier tranquille</h2>
 				<p>Joli appartement de 3.5 pièces au 2ème étage d'une surface totale de 72m2 comprenant :<BR><BR>- deux chambres à coucher<BR>
                 </p></div>"
-    expected: "<p>Joli appartement de 3.5 pièces au 2ème étage d'une surface totale de 72m2 comprenant :<br><br>- deux chambres à coucher<br>
-    </p>"
+    expected: "Joli appartement de 3.5 pièces au 2ème étage d'une surface totale de 72m2 comprenant :- deux chambres à coucher "
     method_to_test: 'getDescription'
     error_message: 'Do not get description from im__postContent__body'
 test_getReference:
@@ -87,9 +86,9 @@ test_getAvailabilityJuillet:
     input_text: '<div class="im__assets__table"><span class="im__assets__title im__assets__title--big">
 
 Disponible dès juillet 2020										</span>'
-    expected: 2020-04-01 00:00:00
+    expected: 2020-07-01 00:00:00
     method_to_test: getAvailability
-    error_message: 'did not get 2020-04-01 from Disponible des avril 2020'
+    error_message: 'did not get 2020-07-01 from Disponible des juillet 2020'
 test_getLoyerBrut:
     input_text: '<div class="im__assets__table">  <div> Charges : CHF 155.-	</div> <span> Loyer : CHF 1''555.-/mois </span></div>'
     expected: 1710

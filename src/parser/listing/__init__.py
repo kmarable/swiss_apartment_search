@@ -47,8 +47,9 @@ class Listing():
 
     def _getFirstDate(self, matches):
         if len(matches) > 0:
-            settings = {'DATE_ORDER': 'DMY', 'PREFER_DAY_OF_MONTH': 'first'}
+            settings = {'DATE_ORDER': 'DMY', 'PREFER_DAY_OF_MONTH': 'first', 'LOCALE': 'fr-CH'}
             available_date = dateparser.parse(matches[0], settings=settings)
+            print('parsed', available_date)
             if available_date is not None:
                 return available_date
         return datetime(1970, 1, 1)

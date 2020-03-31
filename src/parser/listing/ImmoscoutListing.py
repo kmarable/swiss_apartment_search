@@ -39,7 +39,7 @@ class ImmoscoutListing(Listing):
         return self._getFirstDate(availabilities)
 
     def getConstructionYear(self):
-        c_pattern = 'e de construction</td><td class=[^>]+>([0-9]+)'
+        c_pattern = r'e de construction</td><td class=[^>]+>([\s0-9]+)'
         years = re.findall(c_pattern, self.text)
         return self._getSmallestInt(years)
 

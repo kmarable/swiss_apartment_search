@@ -1,5 +1,5 @@
 from test.parsing_tests.TestListing import TestListing
-from src.parser.Immoscout import ImmoscoutListing
+from src.parser.listing.ImmoscoutListing import ImmoscoutListing
 from src.utilities import response_from_text
 
 

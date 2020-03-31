@@ -1,6 +1,6 @@
 import unittest
 import yaml
-from src.parser import Listing
+from src.parser.listing import Listing
 from src.utilities import response_from_text
 from src.config import conf
 import os

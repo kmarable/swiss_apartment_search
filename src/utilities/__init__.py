@@ -6,7 +6,8 @@ import inspect
 
 
 def get_absolute_path(file_name):
-    folder = os.environ['PROJECT_FOLDER']
+    folder = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+    print(folder)
     return(os.path.join(folder, os.path.normpath(file_name)))
 
 

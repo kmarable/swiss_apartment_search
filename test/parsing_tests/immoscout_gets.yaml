@@ -8,7 +8,7 @@ test_getConstructionYearwhenExists:
   input_text:  "Année de construction</td><td class=\"whatever\"> 2017"
   expected: 2017
   method_to_test: 'getConstructionYear'
-  error_message: 'Does not get 2017 from Construit en 2017'
+  error_message: 'Does not get 2017 from Année de construction 2017'
 test_getLoyerNet:
   input_text: "Loyer net (mois)</td><td class=\"sc-1o2xig5-3 kyAYIf\">CHF 680.—</td>"
   expected: 680
@@ -30,7 +30,7 @@ test_getLatLong:
   method_to_test: 'getLatLong'
   error_message: 'Does not get latitude from filter item'
 test_getDescription:
-  input_text: "Description</h2><div class=\"sc-7t0e82-0 kYSzxt\">Cuisinette dans l&#x27;entrée, frigo, réchaud à deux plaques, salle de bains/WC.</div><hr class=\"sc-2qoai2-0 jpvnoR\"/>"
+  input_text: "<div class=\"sc-7t0e82-0 kYSzxt\"><p>Cuisinette dans l&#x27;entrée, frigo, réchaud à deux plaques, salle de bains/WC.</p></div><hr class=\"sc-2qoai2-0 jpvnoR\"/>"
   expected: "Cuisinette dans l'entrée, frigo, réchaud à deux plaques, salle de bains/WC."
   method_to_test: 'getDescription'
   error_message: 'Does not get description from'
@@ -54,7 +54,7 @@ test_getAnnouncer:
   error_message: 'did not find announcer'
 test_getAddress:
     input_text: '>Emplacement</h2><p class="sc-1w14opy-0 bRPxzE">Rue du Bugnon 33<br/>1020<!-- --> <!-- -->Renens VD<!-- -->, VD</p>'
-    expected: {'Street': 'Rue du Bugnon 33', 'Zip' : 1020, 'City' :'Renens'}
+    expected: {'Street': 'Rue du Bugnon 33', 'Zip' : 1020, 'City' :'Renens VD'}
     method_to_test: 'getAddress'
     error_message: 'cannot get address Rue du Bugnon 33<br/>1020<!-- --> <!-- -->Renens VD'
 test_getLoyerBrut:
@@ -63,7 +63,7 @@ test_getLoyerBrut:
     method_to_test: 'getLoyerBrut'
     error_message: 'does not extract 740 for loyer brut'
 test_getRooms:
-    input_text: 'Description</h2><div class="sc-7t0e82-0 kYSzxt">Cuisinette dans l&#x27;entrée, frigo, réchaud à deux plaques, salle de bains/WC.</div>'
+    input_text: "<div class=\"sc-7t0e82-0 kYSzxt\"><p>Cuisinette dans l&#x27;entrée, frigo, réchaud à deux plaques, salle de bains/WC.</p></div><hr class=\"sc-2qoai2-0 jpvnoR\"/>"
     expected: {'chambre': 0, 'séjour': 0, 'cuisine': 1, 'wc': 2, 'Entrée ': 0, 'balcon': 0, 'jardin': 0, 'cave': 0, 'stores ': 0}
     method_to_test: 'getRooms'
     error_message: 'does not count rooms correctly in Cuisinette dans l&#x27;entrée, frigo, réchaud à deux plaques, salle de bains/WC '
