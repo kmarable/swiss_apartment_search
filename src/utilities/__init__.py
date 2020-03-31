@@ -1,8 +1,13 @@
 from scrapy.http import TextResponse, Request
 import pandas as pd
 import re
+import os
 import inspect
 
+
+def get_absolute_path(file_name):
+    folder = os.environ['PROJECT_FOLDER']
+    return(os.path.join(folder, os.path.normpath(file_name)))
 
 
 def get_get_functions(class_):

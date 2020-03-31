@@ -1,0 +1,19 @@
+project structure and todo
+
+STRUCTURE
+
+-- scraper
+-- parser
+-- scripts
+
+
+TODO
+
+-- D change report output
+-- D, mostly review and clean up scripts
+-- D write docs
+-- D quiet spider outputs and move to more appropriate location.
+-- D quiet parser output
+-- D write script to add script to scheduled tasks.
+-- D save environments and write documentation about installing it
+-- consider adding update only mode, maybe also a way of tracking whether individual listings are updated?

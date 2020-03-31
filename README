@@ -1,0 +1,59 @@
+# Swiss Apartment Search
+
+This project scrapes the sites Immoscout24.ch and immobilier.ch and downloads listings for apartments in Lausanne, Ecublens, Renens, and Prilly from the sites Immoscout24.ch and immobilier.ch.  It parses each listing to extract key features of the apartments, processes them to add additional features (most notably distance to the nearest M1 metro stop), and then filters them to only return apartments meeting certain criteria.  The goal is to allow a more efficient search for apartments with easy access to EPFL.
+
+## Downloading and setting up
+
+
+Download this source code to your computer using git clone.  From the command line:
+```
+git clone https://github.com/kmarable/swiss_apartment_search
+```
+
+Then, navigate to the new project directory and activate the environment using
+'''
+conda env create -f environment.yml
+'''
+
+## Single search
+
+To run the entire search, first navigate to the project directory.
+Then on the command line type
+
+'''
+python __main__.py
+'''
+
+This script will start scrapers for each website, scrape the websites, parse the downloaded sites, process the initial data, then return results filtered according to criteria.
+
+The final results appear in data\report.csv.  All the intermediate data is also saved in data.
+
+## Schedule regular searches
+
+Use the windows task schedule to run scripts\apartment_search.bat at the time of your choosing.
+
+## Working with the code
+
+The __main.py__ script calls the following four scripts:
+- scrape.py = download all webpages for apartments for rent using
+- update.py = parse information from the downloaded webpages into a csv file
+- process.py = engineer additional features, combine with original data and write to new file called processed_data.csv file
+- report.py = filter the data and write only interesting listings to a new file called report.csv
+
+All of them can be run individually from the command line as well. For example to just regenerate the date from downloaded webpages, run
+
+'''
+python script\update.py
+'''
+
+The scraping code is based on the scrapy library and is stored in the /sas_scraper directory.  It crawls through all the listings posted in Lausanne, Renens, Prilly, and Ecublens on immobilier.ch and immoscout24.ch.
+
+The rest of the project code is in /src.  It mostly consists of parsing individual listing webpages that were saved by the scraper.  The ListingParser class calls parsing functions on every saved page, assembles it into a Pandas data frame, and saves it as a csv file called raw_data.csv.  Inidivual page parsing is managed by the Listing classes.  The base listing class in parser\__init__.py defines an empty Listing.getX() function for every field X we want to extract.  The ImmoscoutListing inherits from the base Listing class, and defines the getX() functions so that they can parse data for webpages saved from Immoscout24.ch.  The ImmobilierListing class does the same thing for webpages saved from immobilier.ch.
+
+
+
+
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details

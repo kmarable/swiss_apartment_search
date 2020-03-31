@@ -1,5 +1,6 @@
 from src.utilities import response_from_text
 from src.utilities.header import Header
+
 ENDHEADER = 'END HEADER'
 
 
@@ -10,7 +11,7 @@ class htmlFile():
 
     def read(self):
         # returns dict of header data and the body
-        with open(self.path, 'r') as f:
+        with open(self.path, 'r', encoding='utf-8') as f:
             file_lines = f.readlines()
             header_text, body = self.splitHeaderFromBody(file_lines)
             header = Header.parseHeader(header_text)
@@ -29,6 +30,7 @@ class htmlFile():
 
     def write(self, text, header):
         with open(self.path, 'w', encoding='utf-8') as f:
+            print('opening for writing', self.path)
             header.writeToHtmlFile(f)
             f.write(ENDHEADER)
             f.write(text)

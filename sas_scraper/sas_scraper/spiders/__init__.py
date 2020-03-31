@@ -5,12 +5,11 @@
 # if we don't have it, download the page and save it for later processing.
 
 import scrapy
-import logging
-from scrapy.utils.log import configure_logging
 from src.config import conf
 import pandas as pd
 import os
 from datetime import date
+from src.utilities import get_absolute_path
 from src.utilities.htmlFile import htmlFile
 from src.utilities.header import Header
 
@@ -18,31 +17,31 @@ from src.utilities.header import Header
 class ApartmentSpider(scrapy.Spider):
     name = "Apartment"
 
-    configure_logging(install_root_handler=False)
-    logging.basicConfig(
-        filename='ApartmentSpiderLog.txt',
-        format='%(levelname)s: %(message)s',
-        level=logging.DEBUG
-    )
-
-    def __init__(self, category=None, *args, **kwargs):
+    def __init__(self, category=None, max_downloads=500, *args, **kwargs):
         super(ApartmentSpider, self).__init__(*args, **kwargs)
-        self.save_dir = conf['DEFAULT']['folder']
+        self.save_dir = get_absolute_path(conf['DEFAULT']['folder'])
         self.old_ids = self.getOldIDs()
         n_ids = len(self.old_ids)
-        self.log('loading %i old ids' % n_ids)
+        self.max_downloads = 1
+
+        self.logger.debug('loading %i old ids' % n_ids)
         for id in self.old_ids:
-            self.log('found old id %i' % id)
+            self.logger.debug('found old id %i' % id)
 
     def getOldIDs(self):
-        file_name = conf['DEFAULT']['raw_file']
-        if not os.path.exists(file_name):
+        old_data = pd.read_csv(self.getFilename())
+        old_immobilier = old_data[old_data['host'] == self.getHost()]
+        old_ids = [int(id) for id in old_immobilier['id']]
+        return list(old_ids)
+
+    def getFilename(self):
+        file_path = get_absolute_path(conf['DEFAULT']['raw_file'])
+        print('file path', file_path)
+        if not os.path.exists(file_path):
+            self.logger.warning('No raw file found')
             return []
         else:
-            old_data = pd.read_csv(file_name)
-            old_immobilier = old_data[old_data['host'] == self.getHost()]
-            old_ids = [int(id) for id in old_immobilier['id']]
-            return list(old_ids)
+            return file_path
 
     def start_requests(self):
         urls = self.getUrls()
@@ -50,47 +49,51 @@ class ApartmentSpider(scrapy.Spider):
             yield scrapy.Request(url=url, callback=self.parseMain)
 
     def parseMain(self, response):
-        self.log('parsing page %s' % response.url)
-        listings = self.getListings(response)
-        self.log('found %i listings ' % len(listings))
+        self.logger.info('parsing page %s' % response.url)
 
-        if not self.pageIsLast(response):
+        listings = self.getListings(response)
+
+        self.logger.info('found %i listings ' % len(listings))
+
+        test, n_max = False, 200
+        if not (self.pageIsLast(response) or test):
             next_page = self.getNextPage(response.url)
-            self.log('next page is %s' % type(next_page))
             if next_page is not None:
                 yield scrapy.Request(next_page, callback=self.parseMain)
 
-        n_max = 50 # maximum downloads per page, used during testing
-        i = 0
-        for l in listings:
+        for i, l in enumerate(listings):
             id = self.getListingID(l)
-            self.log('found id %i' % id)
-            if i > n_max:
-                return
-            elif (id in self.old_ids):
+
+            self.logger.debug('found id %i' % id)
+
+            if (id in self.old_ids):
                 continue  # go on to next link
             else:
-                i = i+1
+                if i > n_max:
+                    break
                 link = self.getListingLink(l)
-                self.log('sending request for %s' % link)
+
+                self.logger.debug('sending request for %s' % link)
+
                 full_link = response.urljoin(link)
-                self.log('next list page is %s' % type(full_link))
-                request = scrapy.Request(full_link, callback=self.savePage)
+
+                self.logger.debug('next list page is %s' % type(full_link))
+                request = scrapy.Request(full_link, callback=self.savePage, encoding='utf-8')
                 request.meta['id'] = id
                 yield request
 
     def savePage(self, response):
-        id = response.meta['id']
+        id = response.meta['id']  # get page id from the request sent in parseMain
         file_name = self.getListingFileName(id)
         save_file = htmlFile(file_name)
-        self.log('in savePage %s' % save_file.path)
         newHeader = Header(response.url, id, self.getHost())
         save_file.write(response.text, newHeader)
-        self.log('Saved file %s' % file_name)
+
+        self.logger.debug('in savePage %s' % save_file.path)
+        self.logger.debug('Saved file %s' % file_name)
 
     def getListingFileName(self, id):
         today = str(date.today())
-
         file_name = os.path.join(self.save_dir,
                                  today + '_' + str(id) + '.html')
         return file_name
@@ -122,4 +125,4 @@ class ApartmentSpider(scrapy.Spider):
         filename = os.path.join(self.save_dir, 'test_page.html')
         with open(filename, 'wb') as f:
             f.write(response.body)
-        self.log('Saved file %s' % filename)
+        self.logger.debug('Saved file %s' % filename)

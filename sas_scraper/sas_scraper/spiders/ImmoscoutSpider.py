@@ -20,35 +20,38 @@ class ImmoscoutSpider(ApartmentSpider):
     def getListings(self, response):
         return response.css('article')
 
-    def getScript(self, response):
+    def getPageScript(self, response):
         state = response.css("script[id^='state']").get()
         return state
 
     def pageIsLast(self, response):
-        pageData = self.getScript(response)
+        pageData = self.getPageScript(response)
         currentPage = re.findall('"currentPage":([0-9]+)', pageData)[0]
         totalPages = re.findall('"totalPages":([0-9]+)', pageData)[0]
-        self.log('total pages %s' % totalPages)
-        self.log('current pages %s' % currentPage)
+
+        is_last = False
         if currentPage == totalPages:
-            return True
-        else:
-            return False
+            is_last = True
+        return is_last
+
+        self.logger.debug('total pages %s' % totalPages)
+        self.logger.debug('current pages %s' % currentPage)
 
     def getNextPage(self, url):
-        self.log('searching url %s' % url)
-        result = re.findall('(.*pn=)([0-9]+)', url)
-        if len(result) > 0:
-            address_components = result[0]
-            page_num = address_components[1]
+        self.logger.debug('searching url %s' % url)
+
+        url_components = re.search('(.*pn=)([0-9]+)', url)
+        if url_components:
+            page_num = url_components.group(2)
+            self.logger.debug('pagenum %s' % page_num)
             new_page_num = int(page_num) + 1
-            new_address = address_components[0] + str(new_page_num)
-            self.log('page >2 url %s' % new_address)
-            return(new_address)
+            new_url = url_components.group(0) + str(new_page_num)
         else:
             new_url = url + '?pn=2'
-            self.log('page 2 url %s' % new_url)
-            return new_url
+
+        self.logger.debug('next page url %s' % new_url)
+
+        return new_url
 
     def getListingLink(self, listing):
         link = listing.css("article a").attrib['href']
@@ -56,9 +59,10 @@ class ImmoscoutSpider(ApartmentSpider):
 
     def getListingID(self, listing):
         link = self.getListingLink(listing)
-        print('the link', link)
-        id_num = re.findall('/([0-9]+)\?s', link)
-        print('INT', id_num)
+        id_num = re.findall(r'/([0-9]+)\?s', link)
+
+        self.logger.debug('listing id is %s' % str(id_num))
+
         if len(id_num) > 0:
             return int(id_num[0])
         else:

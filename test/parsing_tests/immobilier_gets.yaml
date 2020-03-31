@@ -83,6 +83,13 @@ Disponible des avril 2020										</span></div>'
     expected: 2020-04-01 00:00:00
     method_to_test: getAvailability
     error_message: 'did not get 2020-04-01 from Disponible des avril 2020'
+test_getAvailabilityJuillet:
+    input_text: '<div class="im__assets__table"><span class="im__assets__title im__assets__title--big">
+
+Disponible dès juillet 2020										</span>'
+    expected: 2020-04-01 00:00:00
+    method_to_test: getAvailability
+    error_message: 'did not get 2020-04-01 from Disponible des avril 2020'
 test_getLoyerBrut:
     input_text: '<div class="im__assets__table">  <div> Charges : CHF 155.-	</div> <span> Loyer : CHF 1''555.-/mois </span></div>'
     expected: 1710
